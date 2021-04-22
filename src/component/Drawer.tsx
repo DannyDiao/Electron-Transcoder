@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 //生成带有导航链接的ListItem
-function LinkListItem(props) {
+function LinkListItem(props: any) {
   const { icon, primary, key, to } = props;
 
   const CustomLink = React.useMemo(
@@ -49,12 +49,12 @@ function LinkListItem(props) {
       React.forwardRef((linkProps, ref) => (
         <Link ref={ref} to={to} {...linkProps} />
       )),
-    [to],
+    [to]
   );
 
   return (
     <li>
-      <ListItem button component={CustomLink}>
+      <ListItem button component={CustomLink} key={key}>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
       </ListItem>
@@ -78,10 +78,12 @@ export default function HomePageDrawer() {
       >
         <Divider />
         <List>
+          {/*抽屉导航栏上半部分*/}
           {LinkListItem({icon:<TransferWithinAStationIcon/>,primary:'转码',to:'/transcode',key:'transcode'})}
           {LinkListItem({icon:<FormatListBulletedRoundedIcon/>,primary:'任务列表',to:'/task_list',key:'task_list'})}
           {LinkListItem({icon:<DoneIcon/>,primary:'已完成',to:'/task_list_done',key:'task_list_done'})}
           <Divider/>
+          {/*抽屉导航栏下半部分*/}
           {LinkListItem({icon:<SettingsIcon/>,primary:'设置',to:'/setting',key:'setting'})}
           {LinkListItem({icon:<ArrowUpwardRoundedIcon/>,primary:'检查更新',to:'/check_update',key:'check_update'})}
           {LinkListItem({icon:<InfoRoundedIcon/>,primary:'关于',to:'/about',key:'about'})}
