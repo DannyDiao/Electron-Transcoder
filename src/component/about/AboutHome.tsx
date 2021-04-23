@@ -8,8 +8,9 @@ const useStyles = makeStyles((theme) => ({
   container: {
     display: 'flex',
     alignItems: 'flex-end',
-    justifyContent:'flex-end'
-  }
+    justifyContent:'flex-end',
+    position:"relative"
+  },
 }));
 
 export default function AboutHome(){
@@ -17,9 +18,6 @@ export default function AboutHome(){
     return (
       <div className={classes.container}>
         <h1>AboutHome!</h1>
-        <Fab component={Link} to="/" color="primary" aria-label="add">
-          <HomeIcon />
-        </Fab>
       </div>
     );
 }

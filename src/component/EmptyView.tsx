@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, CardActionArea, CardActions, CardContent, CardMedia, Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card/Card';
@@ -6,6 +6,7 @@ import Box from '@material-ui/core/Box/Box';
 import TransferWithinAStationIcon from '@material-ui/icons/TransferWithinAStation';
 import FormatListBulletedRoundedIcon from '@material-ui/icons/FormatListBulletedRounded';
 import {Link} from 'react-router-dom';
+import flower_image from '../img/flower_spring.jpg';
 
 const useStyles = makeStyles((theme) => ({
   empty_view: {
@@ -23,6 +24,7 @@ const randomPicSrc = 'https://source.unsplash.com/user/maripopeo';
 
 export default function EmptyView() {
   const classes = useStyles();
+  const [image, setImage] = useState(randomPicSrc);
 
   return (
     <Card className={classes.empty_view}>
@@ -30,7 +32,7 @@ export default function EmptyView() {
           component="img"
           alt="Contemplative Reptile"
           height="380"
-          image={randomPicSrc}
+          image={flower_image}
           title="Contemplative Reptile"
         />
         <CardContent>
@@ -52,6 +54,9 @@ export default function EmptyView() {
           转码
         </Button>
         <Button component={Link} to="/task_list" startIcon={<FormatListBulletedRoundedIcon/>} className={classes.button} disableElevation size="medium" color="primary">
+          任务列表
+        </Button>
+        <Button onClick={()=>setImage(randomPicSrc)} startIcon={<FormatListBulletedRoundedIcon/>} className={classes.button} disableElevation size="medium" color="primary">
           任务列表
         </Button>
       </CardActions>
