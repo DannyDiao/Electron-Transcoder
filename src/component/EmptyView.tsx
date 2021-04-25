@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, CardActionArea, CardActions, CardContent, CardMedia, Typography } from '@material-ui/core';
+import { Button, CardActions, CardContent, CardMedia, Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card/Card';
-import Box from '@material-ui/core/Box/Box';
 import TransferWithinAStationIcon from '@material-ui/icons/TransferWithinAStation';
 import FormatListBulletedRoundedIcon from '@material-ui/icons/FormatListBulletedRounded';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import {Link} from 'react-router-dom';
 import flower_image from '../img/flower_spring.jpg';
+import flower_image_2 from '../img/flower_spring_2.jpg';
+import flower_image_3 from '../img/flower_spring_3.jpg';
+import flower_image_4 from '../img/flower_spring_4.jpg';
 
 const useStyles = makeStyles((theme) => ({
   empty_view: {
@@ -24,15 +27,15 @@ const randomPicSrc = 'https://source.unsplash.com/user/maripopeo';
 
 export default function EmptyView() {
   const classes = useStyles();
-  const [image, setImage] = useState(randomPicSrc);
-
+  const [image, setImage] = useState(flower_image);
+  let imageArray = [flower_image, flower_image_2, flower_image_3, flower_image_4];
   return (
     <Card className={classes.empty_view}>
         <CardMedia
           component="img"
           alt="Contemplative Reptile"
           height="380"
-          image={flower_image}
+          image={image}
           title="Contemplative Reptile"
         />
         <CardContent>
@@ -40,7 +43,7 @@ export default function EmptyView() {
             欢迎！
           </Typography>
           <Typography variant="body1" color="textSecondary" component="p">
-            新建转码任务，请点击"转码"!
+            新建转码任务，请点击"转码"
           </Typography>
           <Typography variant="body1" color="textSecondary" component="p">
             ____
@@ -56,8 +59,13 @@ export default function EmptyView() {
         <Button component={Link} to="/task_list" startIcon={<FormatListBulletedRoundedIcon/>} className={classes.button} disableElevation size="medium" color="primary">
           任务列表
         </Button>
-        <Button onClick={()=>setImage(randomPicSrc)} startIcon={<FormatListBulletedRoundedIcon/>} className={classes.button} disableElevation size="medium" color="primary">
-          任务列表
+        <Button
+          onClick={()=> {
+          let randomIndex = Math.floor(Math.random() * imageArray.length);
+          setImage(imageArray[randomIndex])
+          }}
+          startIcon={<RefreshIcon/>} className={classes.button} disableElevation size="medium" color="primary">
+          换个背景？
         </Button>
       </CardActions>
     </Card>
