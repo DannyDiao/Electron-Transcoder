@@ -15,13 +15,18 @@ import { createStore } from 'redux';
 import Reducer from './model/Reducer';
 import { Provider} from 'react-redux';
 import HomeFabButton from './component/HomeFabButton';
+import { State } from './model/Interface';
 
-const initialState = {
+const initialState: State = {
   ui: {
-    current_drawer_index: 0
+    current_drawer_index: 0 //drawer的当前index
+  },
+  transcode: {
+    current_step: 0 //转码-步骤条的当前步骤
   }
 };
 
+// @ts-ignore
 let store = createStore(Reducer, initialState);
 
 export default function App() {

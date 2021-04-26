@@ -1,10 +1,5 @@
 import { Action, ActionType, State } from './Interface';
 
-const initialState: State = {
-  ui: {
-    current_drawer_index: 0
-  }
-};
 
 export default function Reducer(state, action: Action) {
   switch (action.type) {
@@ -14,6 +9,13 @@ export default function Reducer(state, action: Action) {
         ui: {
           current_drawer_index: action.payload
         }
-      };
+      }
+    case ActionType.ChangeTranscodeStep:
+      return {
+        ...state,
+        transcode: {
+          current_step: action.payload
+        }
+      }
   }
 }

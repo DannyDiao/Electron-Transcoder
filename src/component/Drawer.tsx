@@ -68,7 +68,6 @@ export default function HomePageDrawer() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const state = useSelector(state => state)
-  console.log('current_drawer_index:' + (state ? state.ui.current_drawer_index : ''));
   function changeDrawerIndexDispatch(index: number) {
     return dispatch({
       type: ActionType.ChangeDrawerIndex,
