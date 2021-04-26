@@ -12,6 +12,12 @@ import AboutHome from './component/about/AboutHome';
 import { Box, Fab } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import HomeIcon from '@material-ui/icons/Home';
+import { createStore } from 'redux';
+import Reducer from './model/Reducer';
+
+
+
+let store = createStore(Reducer);
 
 const useStyles = makeStyles((theme) => ({
     fab_button: {

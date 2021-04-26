@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
 
 //生成带有导航链接的ListItem
 function LinkListItem(props: any) {
-  const { icon, primary, key, to } = props;
+  const { icon, primary, key, to, selected } = props;
 
   const CustomLink = React.useMemo(
     () =>
@@ -54,7 +54,7 @@ function LinkListItem(props: any) {
 
   return (
     <li>
-      <ListItem button component={CustomLink} key={key}>
+      <ListItem button component={CustomLink} key={key} selected={selected}>
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
       </ListItem>
