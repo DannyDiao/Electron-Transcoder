@@ -1,8 +1,12 @@
-import { Action, ActionType } from './Interface';
+import { Action, ActionType, State } from './Interface';
 
-const initialState = {};
+const initialState: State = {
+  ui: {
+    current_drawer_index: 0
+  }
+};
 
-export default function Reducer(state = initialState, action: Action) {
+export default function Reducer(state, action: Action) {
   switch (action.type) {
     case ActionType.ChangeDrawerIndex:
       return {
