@@ -6,6 +6,7 @@ export interface Action {
 }
 
 export enum ActionType {
+  'ResetAllState',
   'ChangeDrawerIndex',
   'ChangeTranscodeStep'
 }

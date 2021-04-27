@@ -3,6 +3,9 @@ import { Button, Card, createStyles, Step, StepLabel, Stepper, Theme } from '@ma
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionType, State } from '../../model/Interface';
+import SelectSource from './SelectSource';
+import SelectParams from './SelectParams';
+import CheckParams from './CheckParams';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -42,6 +45,20 @@ export default function TranscodeHome() {
     })
   }
 
+  //根据step渲染不同的content
+  let cardContent;
+  switch (activeStep) {
+    case 0:
+      cardContent = <SelectSource/>
+      break;
+    case 1:
+      cardContent = <SelectParams/>;
+      break;
+    case 2:
+      cardContent = <CheckParams/>;
+      break;
+  }
+
 
   return (
     <div className={classes.root}>
@@ -56,11 +73,11 @@ export default function TranscodeHome() {
           })}
         </Stepper>
       </Card>
-
+      <Button onClick={() => changeStepDispatch(activeStep + 1)}>
+        {'test'}
+      </Button>
       <Card className={classes.content_card}>
-        <Button onClick={() => changeStepDispatch(activeStep + 1)}>
-          {'test'}
-        </Button>
+        {cardContent}
       </Card>
     </div>
   );
