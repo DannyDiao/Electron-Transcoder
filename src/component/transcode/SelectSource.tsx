@@ -62,6 +62,9 @@ const useStyles = makeStyles((theme: Theme) =>
     button: {
       margin: theme.spacing(1),
       marginTop: 80
+    },
+    file_name: {
+      marginTop: 40
     }
   })
 );
@@ -106,7 +109,6 @@ export default function SelectSource() {
     changeMetadataDispatch(args);
     // changeFileSelectedDispatch(true);
   });
-  debugger
   // let codecName;
   //
   // if (state && state.transcode && state.transcode.metadata && state.transcode.metadata.streams) {
@@ -115,6 +117,26 @@ export default function SelectSource() {
   //   });
 
   // }
+  function handleFileSize(size) {
+    let numSize = parseInt(size);
+    numSize = numSize / 1000;
+    if (numSize >= 1000) {
+      return (numSize / 1000).toFixed(2) + ' MB';
+    } else {
+      return numSize.toFixed(2) + ' KB';
+    }
+  }
+
+  function handleBitRate(size) {
+    let numSize = parseInt(size);
+    numSize = numSize / 1000;
+    if (numSize >= 1000) {
+      return (numSize / 1000).toFixed(2) + ' Mb/s';
+    } else {
+      return numSize.toFixed(2) + ' Kb/s';
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.left_content}>
@@ -129,6 +151,14 @@ export default function SelectSource() {
               <Add color='primary' className={classes.add_icon} />
             </Card>
           </Tooltip>
+          <Typography className={classes.file_name}>
+            {
+              state &&
+              state.transcode &&
+              state.transcode.metadata &&
+              state.transcode.metadata.format.filename.split('/').pop()
+            }
+          </Typography>
         </div>
       </div>
       <div className={classes.right_content}>
@@ -143,7 +173,7 @@ export default function SelectSource() {
                     state &&
                     state.transcode &&
                     state.transcode.metadata &&
-                    state.transcode.metadata.format.size
+                    handleFileSize(state.transcode.metadata.format.size)
                   }
                 </React.Fragment>
               }
@@ -156,7 +186,12 @@ export default function SelectSource() {
               primary='封装格式'
               secondary={
                 <React.Fragment>
-                  {'MPEG-4'}
+                  {
+                    state &&
+                    state.transcode &&
+                    state.transcode.metadata &&
+                    state.transcode.metadata.format.filename.split('.')[1]
+                  }
                 </React.Fragment>
               }
             />
@@ -173,7 +208,7 @@ export default function SelectSource() {
                     state.transcode &&
                     state.transcode.metadata &&
                     state.transcode.metadata.streams.find((stream) => {
-                      return stream.codec_type === 'video'
+                      return stream.codec_type === 'video';
                     }).codec_name
                   }
                 </React.Fragment>
@@ -187,7 +222,12 @@ export default function SelectSource() {
               primary='码率'
               secondary={
                 <React.Fragment>
-                  {'753 kb/s'}
+                  {
+                    state &&
+                    state.transcode &&
+                    state.transcode.metadata &&
+                    handleBitRate(state.transcode.metadata.format.bit_rate)
+                  }
                 </React.Fragment>
               }
             />

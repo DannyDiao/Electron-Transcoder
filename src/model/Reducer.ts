@@ -19,7 +19,6 @@ export default function Reducer(state, action: Action) {
         }
       }
     case ActionType.changeMetadata:
-      debugger
       console.log("changeMetadata")
       return {
         ...state,
