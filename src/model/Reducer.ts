@@ -14,7 +14,26 @@ export default function Reducer(state, action: Action) {
       return {
         ...state,
         transcode: {
+          ...state.transcode,
           current_step: action.payload
+        }
+      }
+    case ActionType.changeMetadata:
+      debugger
+      console.log("changeMetadata")
+      return {
+        ...state,
+        transcode: {
+          ...state.transcode,
+          metadata: action.payload
+        }
+      }
+    case ActionType.ChangeFileSelected:
+      return  {
+        ...state,
+        transcode: {
+          ...state.transcode,
+          isFileSelected: action.payload
         }
       }
   }

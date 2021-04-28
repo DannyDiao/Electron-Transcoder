@@ -9,21 +9,22 @@ import TaskDoneHome from './component/taskdone/TaskDoneHome';
 import SettingHome from './component/setting/SettingHome';
 import CheckUpdateHome from './component/checkupdate/CheckUpdateHome';
 import AboutHome from './component/about/AboutHome';
-import { Box } from '@material-ui/core';
+import { Box, Tooltip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { createStore } from 'redux';
 import Reducer from './model/Reducer';
-import { Provider} from 'react-redux';
+import { Provider } from 'react-redux';
 import HomeFabButton from './component/HomeFabButton';
-import { State } from './model/Interface';
 
-const initialState: State = {
+const initialState = {
   ui: {
     current_drawer_index: 0 //drawer的当前index
   },
   transcode: {
-    current_step: 0 //转码-步骤条的当前步骤
-  }
+    current_step: 0, //转码-步骤条的当前步骤
+    is_source_file_selected: false
+  },
+
 };
 
 // @ts-ignore
@@ -46,7 +47,7 @@ export default function App() {
               <Route path='/about' component={AboutHome} />
               <Route path='/' component={EmptyView} />
             </Switch>
-            <HomeFabButton />
+            <HomeFabButton/>
           </Box>
         </Router>
       </Provider>

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { Button, Card, createStyles, Step, StepLabel, Stepper, Theme } from '@material-ui/core';
+import React from 'react';
+import { Button, Card, createStyles, Step, StepLabel, Stepper} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { ActionType, State } from '../../model/Interface';
+import { ActionType } from '../../model/Interface';
 import SelectSource from './SelectSource';
 import SelectParams from './SelectParams';
 import CheckParams from './CheckParams';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     root: {
       flexDirection: 'column',
@@ -28,15 +28,13 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function TranscodeHome() {
   const classes = useStyles();
   const steps = ['选择源文件', '设置参数', '核对参数'];
-  const state = useSelector(state => state) as State
+  const state = useSelector(state => state)
   const dispatch = useDispatch();
 
   let activeStep = 0;
   if (state && state.transcode && state.transcode.current_step) {
     activeStep = state.transcode.current_step;
   }
-
-  console.log("activeStep: " + activeStep)
 
   function changeStepDispatch(index: number) {
     return dispatch({
@@ -64,7 +62,7 @@ export default function TranscodeHome() {
     <div className={classes.root}>
       <Card className={classes.step_card}>
         <Stepper activeStep={activeStep}>
-          {steps.map((label, index) => {
+          {steps.map((label) => {
             return (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -73,9 +71,6 @@ export default function TranscodeHome() {
           })}
         </Stepper>
       </Card>
-      <Button onClick={() => changeStepDispatch(activeStep + 1)}>
-        {'test'}
-      </Button>
       <Card className={classes.content_card}>
         {cardContent}
       </Card>

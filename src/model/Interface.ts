@@ -1,4 +1,3 @@
-import { DefaultRootState } from 'react-redux';
 
 export interface Action {
   type: ActionType,
@@ -8,18 +7,17 @@ export interface Action {
 export enum ActionType {
   'ResetAllState',
   'ChangeDrawerIndex',
-  'ChangeTranscodeStep'
+  'ChangeTranscodeStep',
+  'changeMetadata',
+  'ChangeFileSelected'
 }
 
-export interface State extends DefaultRootState{
-  ui: UIInterface,
-  transcode: TranscodeInterface
-}
 
 export interface UIInterface {
   current_drawer_index: number
 }
 
 export interface TranscodeInterface {
-  current_step: number
+  current_step: number,
+  is_source_file_selected: boolean
 }
