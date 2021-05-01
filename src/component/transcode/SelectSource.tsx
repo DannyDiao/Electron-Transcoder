@@ -107,7 +107,6 @@ export default function SelectSource() {
     console.log('open-file-selector-metadata-reply');
     console.log('metadata_reply', args);
     changeMetadataDispatch(args);
-    // changeFileSelectedDispatch(true);
   });
   // let codecName;
   //

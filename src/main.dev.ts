@@ -163,5 +163,7 @@ ipcMain.on('open-file-selector', function(event, args) {
     console.log(e);
   }
 
+  //截取视频封面并返回Render
+
 
 });
