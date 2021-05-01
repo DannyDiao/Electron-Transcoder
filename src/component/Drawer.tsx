@@ -14,6 +14,8 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import ArrowUpwardRoundedIcon from '@material-ui/icons/ArrowUpwardRounded';
 import InfoRoundedIcon from '@material-ui/icons/InfoRounded';
 import {Link} from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { ActionType } from '../model/Interface';
 const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
@@ -42,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 //生成带有导航链接的ListItem
 function LinkListItem(props: any) {
-  const { icon, primary, key, to } = props;
+  const { icon, primary, key, to, selected, onClick } = props;
 
   const CustomLink = React.useMemo(
     () =>
@@ -53,8 +55,8 @@ function LinkListItem(props: any) {
   );
 
   return (
-    <li>
-      <ListItem button component={CustomLink} key={key}>
+    <li onClick={onClick}>
+      <ListItem button component={CustomLink} key={key} selected={selected} >
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
       </ListItem>
@@ -64,6 +66,19 @@ function LinkListItem(props: any) {
 
 export default function HomePageDrawer() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const state = useSelector(state => state)
+  function changeDrawerIndexDispatch(index: number) {
+    return dispatch({
+      type: ActionType.ChangeDrawerIndex,
+      payload: index
+    })
+  }
+
+  function drawItemIsSelected(index: number) {
+    return (state && state.ui) ? (state.ui.current_drawer_index === index) : false;
+  }
+
 
   return (
     <div className={classes.root}>
@@ -79,16 +94,20 @@ export default function HomePageDrawer() {
         <Divider />
         <List>
           {/*抽屉导航栏上半部分*/}
-          {LinkListItem({icon:<TransferWithinAStationIcon/>,primary:'转码',to:'/transcode',key:'transcode'})}
-          {LinkListItem({icon:<FormatListBulletedRoundedIcon/>,primary:'任务列表',to:'/task_list',key:'task_list'})}
-          {LinkListItem({icon:<DoneIcon/>,primary:'已完成',to:'/task_list_done',key:'task_list_done'})}
+          {LinkListItem({icon:<TransferWithinAStationIcon/>,primary:'转码',to:'/transcode',key:'transcode',onClick:() => changeDrawerIndexDispatch(1),selected:drawItemIsSelected(1)})}
+          {LinkListItem({icon:<FormatListBulletedRoundedIcon/>,primary:'任务列表',to:'/task_list',key:'task_list',onClick:() => changeDrawerIndexDispatch(2),selected:drawItemIsSelected(2)})}
+          {LinkListItem({icon:<DoneIcon/>,primary:'已完成',to:'/task_list_done',key:'task_list_done',onClick:() => changeDrawerIndexDispatch(3),selected:drawItemIsSelected(3)})}
           <Divider/>
           {/*抽屉导航栏下半部分*/}
-          {LinkListItem({icon:<SettingsIcon/>,primary:'设置',to:'/setting',key:'setting'})}
-          {LinkListItem({icon:<ArrowUpwardRoundedIcon/>,primary:'检查更新',to:'/check_update',key:'check_update'})}
-          {LinkListItem({icon:<InfoRoundedIcon/>,primary:'关于',to:'/about',key:'about'})}
+          {LinkListItem({icon:<SettingsIcon/>,primary:'设置',to:'/setting',key:'setting',onClick:() => changeDrawerIndexDispatch(4),selected:drawItemIsSelected(4)})}
+          {LinkListItem({icon:<ArrowUpwardRoundedIcon/>,primary:'检查更新',to:'/check_update',key:'check_update',onClick:() => changeDrawerIndexDispatch(5),selected:drawItemIsSelected(5)})}
+          {LinkListItem({icon:<InfoRoundedIcon/>,primary:'关于',to:'/about',key:'about',onClick:() => changeDrawerIndexDispatch(6),selected:drawItemIsSelected(6)})}
         </List>
       </Drawer>
     </div>
   );
+
+
 }
+
+

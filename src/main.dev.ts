@@ -16,6 +16,10 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 
+const { dialog } = require('electron');
+const ipcMain = require('electron').ipcMain;
+let ffmpeg = require('fluent-ffmpeg');
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -73,8 +77,8 @@ const createWindow = async () => {
     height: 720,
     icon: getAssetPath('icon.png'),
     webPreferences: {
-      nodeIntegration: true,
-    },
+      nodeIntegration: true
+    }
   });
 
   mainWindow.loadURL(`file://${__dirname}/index.html`);
@@ -129,4 +133,37 @@ app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) createWindow();
+});
+
+//选择本地文件
+ipcMain.on('open-file-selector', function(event, args) {
+  const file_path = dialog.showOpenDialogSync({
+    title: '选择转码源文件',
+    // 默认打开的路径，比如这里默认打开下载文件夹
+    defaultPath: app.getPath('downloads'),
+    buttonLabel: 'OK',
+    // 限制能够选择的文件类型
+    filters: [
+      // { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+      { name: 'Movies', extensions: ['mkv', 'avi', 'mp4', 'mov', 'flv'] }
+      // { name: 'Custom File Type', extensions: ['as'] },
+      // { name: 'All Files', extensions: ['*'] },
+    ],
+    properties: ['openFile', 'openDirectory', 'multiSelections', 'showHiddenFiles'],
+    message: '选择转码源文件'
+  });
+  event.sender.send('open-file-selector-reply', file_path[0]);
+
+  //发送文件元信息回Render
+  try {
+    ffmpeg.ffprobe(file_path[0], function(err, metadata) {
+      event.sender.send('open-file-selector-metadata-reply', metadata);
+    });
+  } catch (e) {
+    console.log(e);
+  }
+
+  //截取视频封面并返回Render
+
+
 });

@@ -17,9 +17,6 @@ export default function AboutHome(){
     return (
       <div className={classes.container}>
         <h1>AboutHome!</h1>
-        <Fab component={Link} to="/" color="primary" aria-label="add">
-          <HomeIcon />
-        </Fab>
       </div>
     );
 }
