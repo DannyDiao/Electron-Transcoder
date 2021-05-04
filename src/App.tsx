@@ -22,7 +22,8 @@ const initialState = {
   },
   transcode: {
     current_step: 0, //转码-步骤条的当前步骤
-    is_source_file_selected: false
+    is_source_file_selected: false,
+    coverImg: ''
   },
 
 };

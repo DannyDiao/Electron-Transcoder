@@ -20,6 +20,8 @@ const { dialog } = require('electron');
 const ipcMain = require('electron').ipcMain;
 let ffmpeg = require('fluent-ffmpeg');
 
+let fileSrc = '';
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -152,7 +154,9 @@ ipcMain.on('open-file-selector', function(event, args) {
     properties: ['openFile', 'openDirectory', 'multiSelections', 'showHiddenFiles'],
     message: '选择转码源文件'
   });
-  event.sender.send('open-file-selector-reply', file_path[0]);
+
+  //将文件路径赋值
+  fileSrc = file_path[0];
 
   //发送文件元信息回Render
   try {
@@ -163,7 +167,17 @@ ipcMain.on('open-file-selector', function(event, args) {
     console.log(e);
   }
 
+  let fileName = 'cover' + (new Date().getTime()) + '.png'
+
   //截取视频封面并返回Render
-
-
+  ffmpeg(file_path[0])
+    .on('end', function() {
+      event.sender.send('open-file-selector-cover-reply', path.join(__dirname, '/img/' + fileName));
+    })
+    .screenshots({
+      folder: path.join(__dirname, '/img/'),
+      count: 1,
+      filename: fileName,
+      size: '150x150'
+    });
 });

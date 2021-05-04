@@ -9,7 +9,8 @@ export enum ActionType {
   'ChangeDrawerIndex',
   'ChangeTranscodeStep',
   'changeMetadata',
-  'ChangeFileSelected'
+  'ChangeFileSelected',
+  'ChangeCover'
 }
 
 

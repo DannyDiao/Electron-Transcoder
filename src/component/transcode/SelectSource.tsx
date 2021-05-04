@@ -1,25 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Button,
-  Card,
-  createStyles, Icon, Tooltip
+  Card, CardMedia,
+  createStyles, Icon, Snackbar, Tooltip
 } from '@material-ui/core';
 import { Add } from '@material-ui/icons';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Divider from '@material-ui/core/Divider';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionType } from '../../model/Interface';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+
 
 const ipcRenderer = require('electron').ipcRenderer;
-
-const remote = require('electron').remote;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -64,16 +62,49 @@ const useStyles = makeStyles((theme: Theme) =>
       marginTop: 80
     },
     file_name: {
-      marginTop: 40
+      marginTop: 40,
+      maxWidth: 200
+    },
+    cover_img: {
+      width: 150,
+      height: 150,
     }
   })
 );
 
+let dispatch:any;
+
+//改变cover dispatch
+function changeCoverDispatch(status: any) {
+  return dispatch({
+    type: ActionType.ChangeCover,
+    payload: status
+  });
+}
+
+//改变源文件metadata dispatch
+function changeMetadataDispatch(metadata: any) {
+  return dispatch({
+    type: ActionType.changeMetadata,
+    payload: metadata
+  });
+}
+
+
+ipcRenderer.on('open-file-selector-metadata-reply', function(event, args) {
+  changeMetadataDispatch(args);
+});
+ipcRenderer.on('open-file-selector-cover-reply', function(event, args) {
+  changeCoverDispatch(args);
+});
+
 export default function SelectSource() {
 
   const classes = useStyles();
-  const dispatch = useDispatch();
+  dispatch = useDispatch();
   const state = useSelector(state => state);
+  const coverImg = useSelector(state => state.transcode ? state.transcode.coverImg : '');
+  const [open, setOpen] = useState(false);
 
   //改变转码步骤dispatch
   function changeStepDispatch(index: number) {
@@ -83,39 +114,6 @@ export default function SelectSource() {
     });
   }
 
-  //改变源文件metadata dispatch
-  function changeMetadataDispatch(metadata: any) {
-    return dispatch({
-      type: ActionType.changeMetadata,
-      payload: metadata
-    });
-  }
-
-  //改变选择源文件状态 dispatch
-  function changeFileSelectedDispatch(status: any) {
-    return dispatch({
-      type: ActionType.ChangeFileSelected,
-      payload: status
-    });
-  }
-
-  ipcRenderer.on('open-file-selector-reply', function(event, args) {
-    console.log('file_path_reply', args);
-  });
-
-  ipcRenderer.on('open-file-selector-metadata-reply', function(event, args) {
-    console.log('open-file-selector-metadata-reply');
-    console.log('metadata_reply', args);
-    changeMetadataDispatch(args);
-  });
-  // let codecName;
-  //
-  // if (state && state.transcode && state.transcode.metadata && state.transcode.metadata.streams) {
-  //   codecName = state.transcode.metadata.streams.find((stream) => {
-  //     stream
-  //   });
-
-  // }
   function handleFileSize(size) {
     let numSize = parseInt(size);
     numSize = numSize / 1000;
@@ -136,6 +134,24 @@ export default function SelectSource() {
     }
   }
 
+  //渲染Alert
+  function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+
+  const handleSnackBarClick = () => {
+    setOpen(true);
+  };
+
+  const handleSnackBarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpen(false);
+  };
+
+
   return (
     <div className={classes.root}>
       <div className={classes.left_content}>
@@ -147,7 +163,12 @@ export default function SelectSource() {
             <Card className={classes.select_source} onClick={() => {
               ipcRenderer.send('open-file-selector', '');
             }}>
-              <Add color='primary' className={classes.add_icon} />
+              {
+                coverImg ?
+                (<CardMedia image={coverImg} className={classes.cover_img}/>)
+                :
+                (<Add color='primary' className={classes.add_icon} />)
+              }
             </Card>
           </Tooltip>
           <Typography className={classes.file_name}>
@@ -189,7 +210,7 @@ export default function SelectSource() {
                     state &&
                     state.transcode &&
                     state.transcode.metadata &&
-                    state.transcode.metadata.format.filename.split('.')[1]
+                    state.transcode.metadata.format.filename.split('.').pop()
                   }
                 </React.Fragment>
               }
@@ -238,11 +259,25 @@ export default function SelectSource() {
             color='primary'
             className={classes.button}
             endIcon={<NavigateNextIcon />}
-            onClick={() => changeStepDispatch(1)}
+            onClick={() => {
+              //判断是否已经选择文件
+              if (coverImg) {
+                changeStepDispatch(1);
+              } else {
+                handleSnackBarClick();
+              }
+            }}
           >
             下一步
           </Button>
         </Tooltip>
+
+        <Snackbar open={open} autoHideDuration={6000} onClose={handleSnackBarClose}>
+          <Alert onClose={handleSnackBarClose} severity="error">
+            请先选择要转码的文件
+          </Alert>
+        </Snackbar>
+
       </div>
 
 

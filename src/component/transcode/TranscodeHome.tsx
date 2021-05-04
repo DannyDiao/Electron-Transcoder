@@ -6,6 +6,7 @@ import { ActionType } from '../../model/Interface';
 import SelectSource from './SelectSource';
 import SelectParams from './SelectParams';
 import CheckParams from './CheckParams';
+import path from 'path';
 
 const useStyles = makeStyles(() =>
   createStyles({
