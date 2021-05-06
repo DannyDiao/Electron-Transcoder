@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
-import { createStyles, FormControl, InputLabel, MenuItem, Slider, Typography } from '@material-ui/core';
+import {
+  Button,
+  createStyles,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Slider, Snackbar, TextField,
+  Tooltip,
+  Typography
+} from '@material-ui/core';
 import Select from '@material-ui/core/Select';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import { ActionType } from '../../model/Interface';
+import { useDispatch } from 'react-redux';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
 
-
+const ipcRenderer = require('electron').ipcRenderer;
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      display: 'flex'
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
     },
     formControl: {
       margin: theme.spacing(1),
@@ -21,28 +36,78 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     single_line: {
       display: 'flex',
-      alignItems:'baseline',
-      flexWrap:'nowrap',
-      justifyContent:'start',
-      marginBottom: 15
+      alignItems: 'baseline',
+      flexWrap: 'nowrap',
+      justifyContent: 'start',
+      marginBottom: 8
+    },
+    button: {
+      margin: theme.spacing(1),
+      width: 200,
+      marginTop: -50
     }
   })
 );
+let setPath: Function;
+
+ipcRenderer.on('save-path-selector-reply', function(event, args) {
+  if (setPath) {
+    setPath(args);
+  }
+});
 
 export default function SelectParams() {
   const classes = useStyles();
+  const dispatch = useDispatch();
   const [params, setParams] = React.useState({
     format: '',
     quality: 10,
     size: 'origin',
-    fps:'origin',
+    fps: 'origin',
     only_sound: false,
-    only_video: false
+    only_video: false,
+    file_name: '',
+    file_save_path: ''
+
   });
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>, value: number, changeType: string) => {
+  const [open, setOpen] = useState(false);
+  const [fileSavePath, setFileSavePath] = useState('');
+  setPath = setFileSavePath;
 
-    console.log(event.target.value);
+  //改变转码步骤dispatch
+  function changeStepDispatch(index: number) {
+    return dispatch({
+      type: ActionType.ChangeTranscodeStep,
+      payload: index
+    });
+  }
+
+  //存储转码参数dispatch
+  function changeTranscodeParamsDispatch(payload) {
+    return dispatch({
+      type: ActionType.ChangeTranscodeParams,
+      payload: payload
+    });
+  }
+
+  const handleSnackBarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false);
+  };
+
+  const handleSnackBarClick = () => {
+    setOpen(true);
+  };
+
+  //渲染Alert
+  function Alert(props: AlertProps) {
+    return <MuiAlert elevation={6} variant='filled' {...props} />;
+  }
+
+  const handleChange = (event: React.ChangeEvent<{ value: unknown }>, value: number, changeType: string) => {
     switch (changeType) {
       case 'format':
         setParams({
@@ -60,16 +125,34 @@ export default function SelectParams() {
         setParams({
           ...params,
           size: event.target.value as string
+        });
+        break;
+      case 'file_save_path':
+        setParams({
+          ...params,
+          file_save_path: event.target.value as string
         })
+        break;
+      case 'file_name':
+        setParams({
+          ...params,
+          file_name: event.target.value as string
+        })
+        break;
     }
   };
+
+  const checkParamFinish = () => {
+    return params.fps && params.format && params.size && params.quality && params.file_name;
+  };
+
 
   return (
     <div className={classes.root}>
       <div className={classes.container}>
 
         {/*选择格式*/}
-        <div className={classes.single_line} style={{marginBottom:40}}>
+        <div className={classes.single_line} style={{ marginBottom: 40 }}>
           <Typography>
             输出格式：
           </Typography>
@@ -81,10 +164,9 @@ export default function SelectParams() {
             >
               <MenuItem value={'MP4'}>MP4</MenuItem>
               <MenuItem value={'FLV'}>FLV</MenuItem>
-              <MenuItem value={'RMVB'}>RMVB</MenuItem>
               <MenuItem value={'MOV'}>MOV</MenuItem>
-              <MenuItem value={'MKV'}>MKV</MenuItem>
-              <MenuItem value={'AVI'}>AVI</MenuItem>
+              <MenuItem value={'M4V'}>M4V</MenuItem>
+              <MenuItem value={'Webm'}>Webm</MenuItem>
             </Select>
           </FormControl>
         </div>
@@ -97,7 +179,7 @@ export default function SelectParams() {
           <Slider
             onChange={(e, value) => handleChange(e, value, 'quality')}
             style={{ minWidth: 200 }}
-            defaultValue={5}
+            defaultValue={10}
             aria-labelledby='discrete-slider'
             step={1}
             marks
@@ -111,7 +193,7 @@ export default function SelectParams() {
         </div>
 
         {/*输出尺寸*/}
-        <div className={classes.single_line} style={{marginBottom:40}}>
+        <div className={classes.single_line} style={{ marginBottom: 40 }}>
           <Typography>
             输出尺寸：
           </Typography>
@@ -128,7 +210,54 @@ export default function SelectParams() {
             </Select>
           </FormControl>
         </div>
+
+        {/*文件名*/}
+        <div className={classes.single_line} style={{ marginBottom: 40 }}>
+          <Typography>
+            文件名：
+          </Typography>
+          <TextField label="文件名"  variant='outlined' size='small' style={{ marginLeft: 24 }} onChange={(e)=>{
+            handleChange(e,0,'file_name')
+          }} />
+        </div>
+
+        {/*输出位置*/}
+        <div className={classes.single_line} style={{ marginBottom: 40 }}>
+          <Typography>
+            输出目录：
+          </Typography>
+          <TextField label="目录" value={fileSavePath} variant='outlined' size='small' style={{ marginLeft: 8 }} onClick={() => {
+            ipcRenderer.send('save-path-selector', '');
+          }} />
+        </div>
+
       </div>
+
+      <Tooltip title={'下一步 - 核对参数&开始'}>
+        <Button
+          variant='contained'
+          color='primary'
+          className={classes.button}
+          endIcon={<NavigateNextIcon />}
+          onClick={() => {
+            if (checkParamFinish()) {
+              changeTranscodeParamsDispatch(params);
+              ipcRenderer.send('transcode-params', params);
+              changeStepDispatch(2);
+            } else {
+              handleSnackBarClick();
+            }
+          }}
+        >
+          下一步
+        </Button>
+      </Tooltip>
+
+      <Snackbar open={open} autoHideDuration={3000} onClose={handleSnackBarClose}>
+        <Alert onClose={handleSnackBarClose} severity='error'>
+          参数还有未选择的
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

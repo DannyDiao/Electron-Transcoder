@@ -67,12 +67,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     cover_img: {
       width: 150,
-      height: 150,
+      height: 150
     }
   })
 );
 
-let dispatch:any;
+let dispatch: any;
 
 //改变cover dispatch
 function changeCoverDispatch(status: any) {
@@ -136,7 +136,7 @@ export default function SelectSource() {
 
   //渲染Alert
   function Alert(props: AlertProps) {
-    return <MuiAlert elevation={6} variant="filled" {...props} />;
+    return <MuiAlert elevation={6} variant='filled' {...props} />;
   }
 
   const handleSnackBarClick = () => {
@@ -165,9 +165,9 @@ export default function SelectSource() {
             }}>
               {
                 coverImg ?
-                (<CardMedia image={coverImg} className={classes.cover_img}/>)
-                :
-                (<Add color='primary' className={classes.add_icon} />)
+                  (<CardMedia image={coverImg} className={classes.cover_img} />)
+                  :
+                  (<Add color='primary' className={classes.add_icon} />)
               }
             </Card>
           </Tooltip>
@@ -272,8 +272,8 @@ export default function SelectSource() {
           </Button>
         </Tooltip>
 
-        <Snackbar open={open} autoHideDuration={6000} onClose={handleSnackBarClose}>
-          <Alert onClose={handleSnackBarClose} severity="error">
+        <Snackbar open={open} autoHideDuration={3000} onClose={handleSnackBarClose}>
+          <Alert onClose={handleSnackBarClose} severity='error'>
             请先选择要转码的文件
           </Alert>
         </Snackbar>
