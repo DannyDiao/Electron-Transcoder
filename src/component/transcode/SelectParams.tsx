@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import {
   Button,
@@ -67,7 +67,7 @@ export default function SelectParams() {
     only_sound: false,
     only_video: false,
     file_name: '',
-    file_save_path: ''
+    file_path: ''
 
   });
 
@@ -127,17 +127,17 @@ export default function SelectParams() {
           size: event.target.value as string
         });
         break;
-      case 'file_save_path':
-        setParams({
-          ...params,
-          file_save_path: event.target.value as string
-        })
-        break;
       case 'file_name':
         setParams({
           ...params,
           file_name: event.target.value as string
-        })
+        });
+        break;
+      case 'file_path':
+        setParams({
+          ...params,
+          file_path: event.target.value as string
+        });
         break;
     }
   };
@@ -145,6 +145,12 @@ export default function SelectParams() {
   const checkParamFinish = () => {
     return params.fps && params.format && params.size && params.quality && params.file_name;
   };
+
+  //仅当fileSavePath变化时才会去做处理，避免过多的re-render
+  useEffect(() => {
+    //处理存储目录的变化
+    handleChange({ target: { value: fileSavePath } } as React.ChangeEvent<{ value: unknown; }>, 0, 'file_path');
+  },[fileSavePath])
 
 
   return (
@@ -216,8 +222,8 @@ export default function SelectParams() {
           <Typography>
             文件名：
           </Typography>
-          <TextField label="文件名"  variant='outlined' size='small' style={{ marginLeft: 24 }} onChange={(e)=>{
-            handleChange(e,0,'file_name')
+          <TextField label='文件名' variant='outlined' size='small' style={{ marginLeft: 24 }} onChange={(e) => {
+            handleChange(e, 0, 'file_name');
           }} />
         </div>
 
@@ -226,9 +232,10 @@ export default function SelectParams() {
           <Typography>
             输出目录：
           </Typography>
-          <TextField label="目录" value={fileSavePath} variant='outlined' size='small' style={{ marginLeft: 8 }} onClick={() => {
-            ipcRenderer.send('save-path-selector', '');
-          }} />
+          <TextField label='目录' value={fileSavePath} variant='outlined' size='small' style={{ marginLeft: 8 }}
+                     onClick={() => {
+                       ipcRenderer.send('save-path-selector', '');
+                     }} />
         </div>
 
       </div>

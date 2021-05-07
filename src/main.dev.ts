@@ -218,9 +218,9 @@ ipcMain.on('transcode-params', function(event, args) {
     .on('progress', function(progress) {
       console.log('Processing: ' + progress.percent + '% done');
     })
-    .save((outputDir && params.file_name) ?
-      (outputDir + '/' + params.file_name + '.' + params.format.toLowerCase()) :
-      ('/' + params.file_name + '.' + params.format.toLowerCase()));
+    // .save((outputDir && params.file_name) ?
+    //   (outputDir + '/' + params.file_name + '.' + params.format.toLowerCase()) :
+    //   ('/' + params.file_name + '.' + params.format.toLowerCase()));
 
 
 
