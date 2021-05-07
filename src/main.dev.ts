@@ -20,6 +20,8 @@ const { dialog } = require('electron');
 const ipcMain = require('electron').ipcMain;
 let ffmpeg = require('fluent-ffmpeg');
 
+let fileSrc = '';
+
 export default class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -135,6 +137,30 @@ app.on('activate', () => {
   if (mainWindow === null) createWindow();
 });
 
+let metaData = {};
+let outputDir = '';
+//选择输出目录
+ipcMain.on('save-path-selector', function(event, args) {
+  const file_path = dialog.showOpenDialogSync({
+    title: '选择输出文件路径',
+    // 默认打开的路径，比如这里默认打开下载文件夹
+    defaultPath: app.getPath('downloads'),
+    buttonLabel: 'OK',
+    // 限制能够选择的文件类型
+    filters: [
+      // { name: 'Images', extensions: ['jpg', 'png', 'gif'] },
+      { name: 'Movies', extensions: ['mkv', 'avi', 'mp4', 'mov', 'flv'] }
+      // { name: 'Custom File Type', extensions: ['as'] },
+      // { name: 'All Files', extensions: ['*'] },
+    ],
+    properties: ['openDirectory', 'showHiddenFiles', 'createDirectory'],
+    message: '选择输出文件路径'
+  });
+
+  event.sender.send('save-path-selector-reply', file_path);
+  outputDir = file_path;
+});
+
 //选择本地文件
 ipcMain.on('open-file-selector', function(event, args) {
   const file_path = dialog.showOpenDialogSync({
@@ -149,21 +175,79 @@ ipcMain.on('open-file-selector', function(event, args) {
       // { name: 'Custom File Type', extensions: ['as'] },
       // { name: 'All Files', extensions: ['*'] },
     ],
-    properties: ['openFile', 'openDirectory', 'multiSelections', 'showHiddenFiles'],
+    properties: ['openFile', 'showHiddenFiles'],
     message: '选择转码源文件'
   });
-  event.sender.send('open-file-selector-reply', file_path[0]);
+
+  //将文件路径赋值
+  fileSrc = file_path[0];
 
   //发送文件元信息回Render
   try {
     ffmpeg.ffprobe(file_path[0], function(err, metadata) {
+      metaData = metadata;
       event.sender.send('open-file-selector-metadata-reply', metadata);
     });
   } catch (e) {
     console.log(e);
   }
 
+  let fileName = 'cover' + (new Date().getTime()) + '.png';
+
   //截取视频封面并返回Render
+  ffmpeg(file_path[0])
+    .on('end', function() {
+      event.sender.send('open-file-selector-cover-reply', path.join(__dirname, '/img/' + fileName));
+    })
+    .screenshots({
+      folder: path.join(__dirname, '/img/'),
+      count: 1,
+      filename: fileName,
+      size: '150x150'
+    });
+});
+
+let params = {};
+
+//接收所有转码参数
+ipcMain.on('transcode-params', function(event, args) {
+  params = args;
+  let ffmpegProcess = new ffmpeg(fileSrc);
+  processFfmpegParams(ffmpegProcess, params);
+  ffmpegProcess
+    .on('progress', function(progress) {
+      console.log('Processing: ' + progress.percent + '% done');
+    })
+    // .save((outputDir && params.file_name) ?
+    //   (outputDir + '/' + params.file_name + '.' + params.format.toLowerCase()) :
+    //   ('/' + params.file_name + '.' + params.format.toLowerCase()));
 
 
+
+});
+
+function processFfmpegParams(ffmpegProcess, params) {
+  if (params.format) {
+    ffmpegProcess.format(params.format.toLowerCase());
+  }
+  // if (params.fps) {
+  //   ffmpegProcess.fps(parseFloat(params.fps));
+  // }
+  if (params.only_sound) {
+    ffmpegProcess.noVideo();
+  }
+  if (params.only_video) {
+    ffmpegProcess.noAudio();
+  }
+  if (params.quality) {
+    if (params.quality !== 10) {
+      let bitRate = metaData.format.bit_rate;
+      bitRate = bitRate / params.quality;
+      ffmpegProcess.videoBitrate(bitRate);
+    }
+  }
+}
+
+ffmpeg.getAvailableFormats(function(err, formats) {
+  console.dir(formats)
 });

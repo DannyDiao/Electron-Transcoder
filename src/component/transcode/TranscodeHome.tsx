@@ -6,6 +6,7 @@ import { ActionType } from '../../model/Interface';
 import SelectSource from './SelectSource';
 import SelectParams from './SelectParams';
 import CheckParams from './CheckParams';
+import path from 'path';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -27,7 +28,7 @@ const useStyles = makeStyles(() =>
 
 export default function TranscodeHome() {
   const classes = useStyles();
-  const steps = ['选择源文件', '设置参数', '核对参数'];
+  const steps = ['选择源文件', '设置参数', '核对参数&开始'];
   const state = useSelector(state => state)
   const dispatch = useDispatch();
 

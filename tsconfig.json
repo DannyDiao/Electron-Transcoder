@@ -12,7 +12,8 @@
     "sourceMap": true,
     /* Additional Checks */
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     /* Module Resolution Options */

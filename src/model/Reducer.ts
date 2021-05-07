@@ -47,5 +47,21 @@ export default function Reducer(state, action: Action) {
           isFileSelected: action.payload
         }
       };
+    case ActionType.ChangeCover:
+      return {
+        ...state,
+        transcode: {
+          ...state.transcode,
+          coverImg: action.payload
+        }
+      }
+    case ActionType.ChangeTranscodeParams:
+      return {
+        ...state,
+        transcode: {
+          ...state.transcode,
+          params: action.payload
+        }
+      }
   }
 };
