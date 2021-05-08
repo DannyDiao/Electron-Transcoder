@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button, Divider, List, ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import React, { useState } from 'react';
+import { Button, Divider, List, ListItem, ListItemIcon, ListItemText, Snackbar } from '@material-ui/core';
 import VideoLibraryIcon from '@material-ui/icons/VideoLibrary';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 import AspectRatioIcon from '@material-ui/icons/AspectRatio';
@@ -10,10 +10,34 @@ import UndoIcon from '@material-ui/icons/Undo';
 import DnsIcon from '@material-ui/icons/Dns';
 import HighQualityIcon from '@material-ui/icons/HighQuality';
 import { ActionType } from '../../model/Interface';
+import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
+const ipcRenderer = require('electron').ipcRenderer;
+import useMediaQuery from '@material-ui/core/useMediaQuery';
+import { useTheme } from '@material-ui/core/styles';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 export default function CheckParams() {
+  // @ts-ignore
   const transcode = useSelector(state => state.transcode);
   const dispatch = useDispatch();
+  const [open, setOpen] = useState(false);
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    cleanAllDispatch('');
+    changeStepDispatch(0);
+  };
 
   //改变转码步骤dispatch
   function changeStepDispatch(index: number) {
@@ -22,6 +46,23 @@ export default function CheckParams() {
       payload: index
     });
   }
+
+  //添加任务dispatch
+  function addTaskDispatch(task: any) {
+    return dispatch({
+      type: ActionType.AddTask,
+      payload: task
+    });
+  }
+
+  //清空所有参数dispatch
+  function cleanAllDispatch(task: any) {
+    return dispatch({
+      type: ActionType.CleanTranscode,
+      payload: task
+    });
+  }
+
 
   const listItemTextStyle = {
     marginLeft: -20,
@@ -37,7 +78,6 @@ export default function CheckParams() {
     marginTop: -50,
     marginLeft: 60
   };
-  console.log(transcode.params.file_path);
   return (
     <div style={{ marginLeft: 40 }}>
       <List style={{ margin: 40, minWidth: 200, justifyContent: 'start' }}>
@@ -96,6 +136,17 @@ export default function CheckParams() {
             style={buttonStyle}
             startIcon={<DoneIcon />}
             onClick={() => {
+              let timeStamp = new Date().getTime();
+              let task = {
+                id: timeStamp,
+                name: transcode.metadata.format.filename.split('/').pop(),
+                cover: transcode.coverImg
+              };
+              //添加到UI层redux
+              addTaskDispatch(task);
+              //添加到主进程tasks
+              ipcRenderer.send('add-task', task);
+              handleClickOpen();
             }}
           >
             OK,添加到任务列表
@@ -113,8 +164,29 @@ export default function CheckParams() {
             有误，返回更改
           </Button>
         </ListItem>
-
       </List>
+
+      <Dialog
+        fullScreen={fullScreen}
+        open={open}
+        onClose={handleClose}
+      >
+        <DialogTitle>{"添加任务成功"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            您的转码任务已成功添加！
+            请到任务列表查看。
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} variant='contained' color="primary" autoFocus>
+            好的
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </div>
   );
+
+
 };
