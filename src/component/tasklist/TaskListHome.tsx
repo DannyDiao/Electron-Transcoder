@@ -7,12 +7,15 @@ import LinearProgress, { LinearProgressProps } from '@material-ui/core/LinearPro
 import Box from '@material-ui/core/Box';
 import { ActionType } from '../../model/Interface';
 import { getDispatch, setDispatch } from '../Static';
-
+const {shell} = require('electron')
+const os = require('os')
 const ipcRenderer = require('electron').ipcRenderer;
 import moment from 'moment';
 import FileCopyIcon from '@material-ui/icons/FileCopy';
 moment.locale('zh-cn');
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+
+
 
 function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
   return (
@@ -41,7 +44,7 @@ function modifyTaskDispatch(payload: any) {
 //改变task的dispatch
 function modifyStartDispatch(payload: any) {
   return dispatch({
-    type: ActionType.ChangeStartStatus,
+    type: ActionType.ModifyTask,
     payload: payload
   });
 }
@@ -50,11 +53,14 @@ ipcRenderer.on('transcode-progress', function(event, args) {
   modifyTaskDispatch(args);
 });
 
+ipcRenderer.on('transcode-end', function(event, args) {
+  modifyTaskDispatch(args);
+});
+
 
 export default function TaskListHome() {
   const state = useSelector(state => state);
-  const tasks = state.tasks;
-
+  let tasks = state.tasks;
   if (dispatch === undefined) {
     dispatch = getDispatch();
   }
@@ -83,8 +89,8 @@ export default function TaskListHome() {
     alignItems: 'center'
 
   };
-  const taskList = tasks.map((item,index) => {
-    console.log(item.progress)
+  tasks = tasks.sort((a, b) => a.id - b.id);
+  const taskList = tasks.map((item, index) => {
     return (
       <Card key={item.id} style={cardStyle}>
         <CardContent style={cardContentStyle}>
@@ -101,25 +107,26 @@ export default function TaskListHome() {
                                      value={item.progress ? parseFloat(item.progress) : 0} />
           </div>
           {
-            (parseFloat(item.progress) >= 100) ?
+            item.isEnd ?
               <Button
-                style={{marginLeft:10}}
+                style={{ marginLeft: 15 }}
                 variant='contained'
                 color='primary'
                 startIcon={<FileCopyIcon />}
                 onClick={() => {
+                  shell.showItemInFolder(item.outputDir[0]);
                 }}>
                 浏览文件...
               </Button>
               :
               <Button
-                style={{marginLeft:10}}
+                style={{ marginLeft: 15 }}
                 variant='contained'
                 color='primary'
                 disabled={item.isStart ? item.isStart : false}
                 startIcon={<PlayArrowIcon />}
                 onClick={() => {
-                  modifyStartDispatch({id:item.id, isStart: true})
+                  modifyStartDispatch({ id: item.id, isStart: true });
                   ipcRenderer.send('start-transcode', item.id);
                 }}>
                 开始
@@ -137,7 +144,7 @@ export default function TaskListHome() {
       </Typography>
       <List>
         {
-          taskList
+          tasks.length > 0 ? taskList : <Typography>列表空空如也...</Typography>
         }
       </List>
     </Paper>

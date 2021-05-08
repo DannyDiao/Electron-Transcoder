@@ -6,7 +6,7 @@ import Box from '@material-ui/core/Box/Box';
 import TransferWithinAStationIcon from '@material-ui/icons/TransferWithinAStation';
 import FormatListBulletedRoundedIcon from '@material-ui/icons/FormatListBulletedRounded';
 import {Link} from 'react-router-dom';
-
+import moment from 'moment';
 const useStyles = makeStyles((theme) => ({
   empty_view: {
     width:750,
@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   title:{
   }
 }));
-const randomPicSrc = 'https://source.unsplash.com/user/maripopeo';
+const randomPicSrc = 'https://source.unsplash.com/user/trail';
 
 export default function EmptyView() {
   const classes = useStyles();
@@ -44,7 +44,7 @@ export default function EmptyView() {
             ____
           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-          Electron Transcoder V0.0.1-alpha
+          Electron Transcoder Beta {moment().format('YYYY/MM/DD hh:mm:ss')}
           </Typography>
         </CardContent>
       <CardActions>

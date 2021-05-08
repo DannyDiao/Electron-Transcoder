@@ -87,14 +87,5 @@ export default function Reducer(state, action: Action) {
         ...state,
         tasks: tasks
       }
-    case ActionType.ChangeStartStatus:
-      tasks = state.tasks.filter(item => item.id !== action.payload.id);
-      modify = state.tasks.find(item => item.id === action.payload.id);
-      modify = { ...modify, ...action.payload };
-      tasks.push(modify);
-      return {
-        ...state,
-        tasks: tasks
-      }
   }
 };

@@ -15,7 +15,6 @@ export enum ActionType {
   'AddTask',
   'CleanTranscode',
   'ModifyTask',
-  'ChangeStartStatus'
 }
 
 

@@ -273,6 +273,9 @@ ipcMain.on('start-transcode', function(event, args) {
         event.sender.send('transcode-progress', { id: args, progress: progress.percent.toFixed(2)});
         console.log('Processing: ' + progress.percent + '% done');
       })
+      .on('end',function(stdout, stderr) {
+        event.sender.send('transcode-end', { id: args, isEnd: true, outputDir: outputDir});
+    })
       .save(transcodeTask.output)
 
   }
