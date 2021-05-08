@@ -1,4 +1,4 @@
-import { Action, ActionType, State } from './Interface';
+import { Action, ActionType } from './Interface';
 
 const initialState = {
   ui: {
@@ -6,15 +6,19 @@ const initialState = {
   },
   transcode: {
     current_step: 0, //转码-步骤条的当前步骤
-    is_source_file_selected: false
+    is_source_file_selected: false,
+    coverImg: '',
+    params: {}
   },
-
+  tasks: []
 };
 
 export default function Reducer(state, action: Action) {
-  if (!state) {
+  if (state === undefined) {
     state = initialState;
   }
+  let tasks;
+  let modify;
   switch (action.type) {
     case ActionType.ChangeDrawerIndex:
       return {
@@ -62,6 +66,26 @@ export default function Reducer(state, action: Action) {
           ...state.transcode,
           params: action.payload
         }
+      }
+    case ActionType.AddTask:
+      return {
+        ...state,
+        tasks: state.tasks.length > 0 ? [...state.tasks, action.payload] : [action.payload]
+      }
+    case ActionType.CleanTranscode:
+      return {
+        ...initialState,
+        ui: state.ui,
+        tasks: state.tasks
+      };
+    case ActionType.ModifyTask:
+      tasks = state.tasks.filter(item => item.id !== action.payload.id);
+      modify = state.tasks.find(item => item.id === action.payload.id);
+      modify = { ...modify, ...action.payload };
+      tasks.push(modify);
+      return {
+        ...state,
+        tasks: tasks
       }
   }
 };

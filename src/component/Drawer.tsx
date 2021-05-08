@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 //生成带有导航链接的ListItem
 function LinkListItem(props: any) {
-  const { icon, primary, key, to, selected, onClick } = props;
+  const { icon, primary, key, to, selected, onClick, secondary } = props;
 
   const CustomLink = React.useMemo(
     () =>
@@ -59,6 +59,7 @@ function LinkListItem(props: any) {
       <ListItem button component={CustomLink} key={key} selected={selected} >
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText primary={primary} />
+        <ListItemText secondary={secondary} />
       </ListItem>
     </li>
   );
@@ -68,6 +69,9 @@ export default function HomePageDrawer() {
   const classes = useStyles();
   const dispatch = useDispatch();
   const state = useSelector(state => state)
+
+  let taskCount = state ? (state.tasks ? state.tasks.length : 0 ) : 0
+
   function changeDrawerIndexDispatch(index: number) {
     return dispatch({
       type: ActionType.ChangeDrawerIndex,
@@ -95,7 +99,7 @@ export default function HomePageDrawer() {
         <List>
           {/*抽屉导航栏上半部分*/}
           {LinkListItem({icon:<TransferWithinAStationIcon/>,primary:'转码',to:'/transcode',key:'transcode',onClick:() => changeDrawerIndexDispatch(1),selected:drawItemIsSelected(1)})}
-          {LinkListItem({icon:<FormatListBulletedRoundedIcon/>,primary:'任务列表',to:'/task_list',key:'task_list',onClick:() => changeDrawerIndexDispatch(2),selected:drawItemIsSelected(2)})}
+          {LinkListItem({icon:<FormatListBulletedRoundedIcon/>,primary:'任务列表',to:'/task_list',key:'task_list',secondary: taskCount ,onClick:() => changeDrawerIndexDispatch(2),selected:drawItemIsSelected(2)})}
           {LinkListItem({icon:<DoneIcon/>,primary:'已完成',to:'/task_list_done',key:'task_list_done',onClick:() => changeDrawerIndexDispatch(3),selected:drawItemIsSelected(3)})}
           <Divider/>
           {/*抽屉导航栏下半部分*/}

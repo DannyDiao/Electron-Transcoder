@@ -15,7 +15,7 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { useDispatch, useSelector } from 'react-redux';
 import { ActionType } from '../../model/Interface';
 import MuiAlert, { AlertProps } from '@material-ui/lab/Alert';
-
+import { getDispatch, setDispatch } from '../Static';
 
 const ipcRenderer = require('electron').ipcRenderer;
 
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex'
     },
     left_content: {
-      marginTop: 100,
+      marginTop: 80,
       display: 'flex',
       justifyContent: 'center',
       width: 375,
@@ -59,7 +59,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     button: {
       margin: theme.spacing(1),
-      marginTop: 80
+      width: 200,
+      marginTop: 20
     },
     file_name: {
       marginTop: 40,
@@ -103,8 +104,12 @@ export default function SelectSource() {
   const classes = useStyles();
   dispatch = useDispatch();
   const state = useSelector(state => state);
-  const coverImg = useSelector(state => state.transcode ? state.transcode.coverImg : '');
+  const coverImg = useSelector(state => state ? (state.transcode ? state.transcode.coverImg : '') : '');
   const [open, setOpen] = useState(false);
+
+  if (getDispatch() === undefined) {
+    setDispatch(useDispatch());
+  }
 
   //改变转码步骤dispatch
   function changeStepDispatch(index: number) {

@@ -208,13 +208,15 @@ ipcMain.on('open-file-selector', function(event, args) {
 });
 
 let params = {};
+let tasks:Task[] = [];
+let currentFFmpegProcess;
 
 //接收所有转码参数
 ipcMain.on('transcode-params', function(event, args) {
   params = args;
-  let ffmpegProcess = new ffmpeg(fileSrc);
-  processFfmpegParams(ffmpegProcess, params);
-  ffmpegProcess
+  currentFFmpegProcess = new ffmpeg(fileSrc);
+  processFfmpegParams(currentFFmpegProcess, params);
+  currentFFmpegProcess
     .on('progress', function(progress) {
       console.log('Processing: ' + progress.percent + '% done');
     })
@@ -248,6 +250,40 @@ function processFfmpegParams(ffmpegProcess, params) {
   }
 }
 
-ffmpeg.getAvailableFormats(function(err, formats) {
-  console.dir(formats)
+ipcMain.on('add-task', function(event, args) {
+  if (!tasks.find(item => item.id === args.id)) {
+    tasks.push({
+      id: args.id,
+      name: args.name,
+      ffmpeg: currentFFmpegProcess,
+      output: (outputDir && params.file_name) ?
+        (outputDir + '/' + params.file_name + '.' + params.format.toLowerCase()) :
+        ('/' + params.file_name + '.' + params.format.toLowerCase())
+    })
+  }
+  console.log('tasks', tasks);
 });
+
+//开始转码
+ipcMain.on('start-transcode', function(event, args) {
+  let transcodeTask = tasks.find(item => item.id === args);
+  if (transcodeTask) {
+    transcodeTask.ffmpeg
+      .on('progress', function(progress) {
+        event.sender.send('transcode-progress', { id: args, progress: progress.percent.toFixed(2)});
+        console.log('Processing: ' + progress.percent + '% done');
+      })
+      .on('end',function(stdout, stderr) {
+        event.sender.send('transcode-end', { id: args, isEnd: true, outputDir: outputDir});
+    })
+      .save(transcodeTask.output)
+
+  }
+});
+
+interface Task {
+  id: number,
+  name: string,
+  ffmpeg: any,
+  output: string
+}

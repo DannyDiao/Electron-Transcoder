@@ -26,7 +26,7 @@ const initialState = {
     coverImg: '',
     params: {}
   },
-
+  tasks: []
 };
 
 // @ts-ignore
